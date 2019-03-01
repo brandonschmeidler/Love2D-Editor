@@ -26,13 +26,13 @@ luac.out
 *.exp
 
 # Shared objects (inc. Windows DLLs)
-*.dll
+# *.dll
 *.so
 *.so.*
 *.dylib
 
 # Executables
-*.exe
+# *.exe
 *.out
 *.app
 *.i*86
@@ -41,8 +41,3 @@ luac.out
 
 # wxLua files
 *.lua.bak
-
-# Directories
-Build/*
-
-*.bat
