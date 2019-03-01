@@ -41,3 +41,8 @@ luac.out
 
 # wxLua files
 *.lua.bak
+
+# Directories
+Build/*
+
+*.bat
