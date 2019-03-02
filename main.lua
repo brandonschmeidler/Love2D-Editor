@@ -36,33 +36,25 @@ function NewApp()
 
             -- AUI Managed Widgets
             Console = NewID(),
-            TextEditor = NewID(),
+            EditorNotebook = NewID(),
             ResourceTree = NewID()
         },
         Pane = {
             Console = nil,
-            TextEditor = nil,
+            EditorNotebook = nil,
             ResourceTree = nil
         },
-        -- PaneInfo = {
-        --     Console = wxaui.wxAuiPaneInfo(),
-        --     TextEditor = wxaui.wxAuiPaneInfo(),
-        --     ResourceTree = wxaui.wxAuiPaneInfo()
-        -- },
-        RunningPID = 0
+        RunningPID = 0,
+        
+        CurrentProject = nil
     }
 
-    -- App.PaneInfo.Console:Name("Console")
-    -- App.PaneInfo.Console:Caption("Output")
-    -- App.PaneInfo.Console:Bottom()
+    function App:SetupProject()
+        local setupDialog = wx.wxDialog(self.Frame)
 
-    -- App.PaneInfo.TextEditor:Name("Text Editor")
-    -- App.PaneInfo.TextEditor:CaptionVisible(false)
-    -- App.PaneInfo.TextEditor:Center()
 
-    -- App.PaneInfo.ResourceTree:Name("Resource Tree")
-    -- App.PaneInfo.ResourceTree:Caption("Resource Tree")
-    -- App.PaneInfo.ResourceTree:Right()
+        self.CurrentProject = {}
+    end
 
     function App:OutputLog(msg)
         self.Pane.Console:AppendText("\n"..tostring(msg))
@@ -81,10 +73,18 @@ function NewApp()
     end
 
     function App:RunProgram()
+
+        if (self.CurrentProject == nil) then
+            self:OutputLog("Create a new project or open an existing project first.")
+            return true
+        end
+
+        -- If we're already running a Love2D game process then shut it down
         if (wx.wxProcess.Exists(self.RunningPID)) then
             self:StopProgram()
         end
     
+        -- Startup Love2D or print out an error because Love2D isn't installed on the system
         self.RunningPID = wx.wxExecute("love", wx.wxEXEC_ASYNC, wx.wxProcess(self.Frame))
         if (self.RunningPID > 0) then
             self:OutputLog("Program started succesfully -- PID: " .. tostring(self.RunningPID))
@@ -95,8 +95,10 @@ function NewApp()
 
     function App:ToggleAuiPane(name)
         local pane = self.AuiManager:GetPane(name)
-        pane:Show(not pane:IsShown())
-        self.AuiManager:Update()
+        if (pane:IsOk()) then
+            pane:Show(not pane:IsShown())
+            self.AuiManager:Update()
+        end
     end
 
     function App:Run()
@@ -125,12 +127,10 @@ function NewApp()
 
         self.AuiManager = wxaui.wxAuiManager(self.Frame)
 
-        --self.Pane.TextEditor = wx.wxTextCtrl(self.Frame, self.ID.TextEditor, "", wx.wxDefaultPosition, wx.wxSize(640,480), bit32.bor(wx.wxNO_BORDER,wx.wxTE_MULTILINE))
-        --self.Pane.TextEditor = wxstc.wxStyledTextCtrl(self.Frame, self.ID.TextEditor)
-        self.Pane.TextEditor = wxaui.wxAuiNotebook(self.Frame, self.ID.TextEditor)
-
-        local testPage1 = wxstc.wxStyledTextCtrl(self.Frame,NewID())
-        self.Pane.TextEditor:AddPage(testPage1,"unnamed",true)
+        -- This will be the center of the IDE where all editors will be managed
+        self.Pane.EditorNotebook = wxaui.wxAuiNotebook(self.Frame, self.ID.EditorNotebook)
+        -- local testPage1 = wxstc.wxStyledTextCtrl(self.Frame,NewID())
+        -- self.Pane.EditorNotebook:AddPage(testPage1,"unnamed",true)
         
         self.Pane.Console = wx.wxTextCtrl(self.Frame, self.ID.Console, "Love2D Editor <VERSION>", wx.wxDefaultPosition, wx.wxDefaultSize, bit32.bor(wx.wxNO_BORDER,wx.wxTE_MULTILINE))
         self.Pane.Console:SetEditable(false)
@@ -144,7 +144,7 @@ function NewApp()
         -- Setup initial PaneInfo for each Aui Pane and pass it to manager
         local paneInfo = {
             Console = wxaui.wxAuiPaneInfo(),
-            TextEditor = wxaui.wxAuiPaneInfo(),
+            EditorNotebook = wxaui.wxAuiPaneInfo(),
             ResourceTree = wxaui.wxAuiPaneInfo()
         }
         paneInfo.Console:Name("Console")
@@ -152,16 +152,16 @@ function NewApp()
         paneInfo.Console:Bottom()
         paneInfo.Console:FloatingSize(640,200)
 
-        paneInfo.TextEditor:Name("Text Editor")
-        paneInfo.TextEditor:CaptionVisible(false)
-        paneInfo.TextEditor:Center()
+        paneInfo.EditorNotebook:Name("EditorNotebook")
+        paneInfo.EditorNotebook:CaptionVisible(false)
+        paneInfo.EditorNotebook:Center()
 
         paneInfo.ResourceTree:Name("Resource Tree")
         paneInfo.ResourceTree:Caption("Resource Tree")
         paneInfo.ResourceTree:Right()
         paneInfo.ResourceTree:FloatingSize(200,500)
 
-        self.AuiManager:AddPane(self.Pane.TextEditor, paneInfo.TextEditor)
+        self.AuiManager:AddPane(self.Pane.EditorNotebook, paneInfo.EditorNotebook)
         self.AuiManager:AddPane(self.Pane.Console, paneInfo.Console)
         self.AuiManager:AddPane(self.Pane.ResourceTree, paneInfo.ResourceTree)
 
@@ -178,7 +178,7 @@ function NewApp()
     end
 
     function App:Shutdown()
-        self:OutputLog("Love2D Shutting down")
+        self:OutputLog("Love2D Editor Shutting down")
         self.Frame:Close(true)
     end
 
