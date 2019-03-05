@@ -8,14 +8,6 @@
 -- License:    wxWidgets license
 -----------------------------------------------------------------------------
 
--- local IDCOUNTER = wx.wxID_HIGHEST
--- function IdManager.Get():NewID()
---     IDCOUNTER = IDCOUNTER + 1
---     return IDCOUNTER
--- end
-
---local ID = {}
-
 local ContentBrowser = require("src.ContentBrowser")
 local ConsoleOutput = require("src.ConsoleOutput")
 local IdManager = require("src.IdManager").Get()
@@ -35,7 +27,6 @@ function main()
 
     browse:SetRoot(wx.wxStandardPaths.Get():GetResourcesDir() .. "\\TestProject")
     output:Print("Love2D Editor Initialized")
-    output:Print("")
 
     frame:Show(true)
 end
