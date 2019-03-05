@@ -17,6 +17,7 @@ end
 local ID = {}
 
 local ContentBrowser = require("src.ContentBrowser")
+local ConsoleOutput = require("src.ConsoleOutput")
 
 function main()
     ID.Frame = NewID()
@@ -29,11 +30,17 @@ function main()
 
     ID.ContentBrowser = NewID()
     browse = ContentBrowser(frame,ID.ContentBrowser)
-    browse:SetRoot(wx.wxStandardPaths.Get():GetDocumentsDir() .. "\\Love2DEditorTestingGrounds")
+    
+    ID.ConsoleOutput = NewID()
+    output = ConsoleOutput(frame,ID.ConsoleOutput)
 
     auiManager:AddPane(editorNotebook, wxaui.wxAuiPaneInfo():Name("Editors"):CaptionVisible(false):Center())
-    auiManager:AddPane(browse:GetWidget(),wxaui.wxAuiPaneInfo():Name("ContentBrowser"):Caption("Content"):Left())
+    auiManager:AddPane(browse:GetWidget(), wxaui.wxAuiPaneInfo():Name("ContentBrowser"):Caption("Content"):Left())
+    auiManager:AddPane(output:GetWidget(), wxaui.wxAuiPaneInfo():Name("ConsoleOutput"):Caption("Console"):Bottom())
     auiManager:Update()
+
+    browse:SetRoot(wx.wxStandardPaths.Get():GetResourcesDir() .. "\\TestProject")
+    output:Print("Love2D Editor Initialized")
 
     frame:Show(true)
 end
