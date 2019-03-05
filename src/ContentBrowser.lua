@@ -8,7 +8,7 @@ local wxWidget = require("src.wxWidget")
 local ContentBrowser = wxWidget:extend("ContentBrowser")
 
 function ContentBrowser:init(parent,id)
-    self.widget = wx.wxTreeCtrl(parent,id,wx.wxDefaultPosition, wx.wxSize(200,-1), bit32.bor(wx.wxTR_DEFAULT_STYLE,wx.wxTR_HIDE_ROOT))
+    self.widget = wx.wxTreeCtrl(parent,id,wx.wxDefaultPosition, wx.wxSize(200,500), bit32.bor(wx.wxTR_DEFAULT_STYLE,wx.wxTR_HIDE_ROOT))
 end
 
 function ContentBrowser:SetRoot(path)
